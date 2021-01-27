@@ -7,17 +7,31 @@ function [c] = decodeBitFlip(R, C, y, maxIter)
 
 c = y;
 syndrome = mod(sum(c(R), 2), 2);
+upcCounts = sum(syndrome(C));
 for iter = 1:maxIter
     if ~any(syndrome)
         break
     end
     
-    upcCounts = sum(syndrome(C));
     threshold = computeThreshold(max(upcCounts));
     flipPos = find(upcCounts >= threshold);
-    c(flipPos) = mod(c(flipPos) + 1, 2);
-    for flipIdx = flipPos
-        syndrome(C(:, flipIdx)) = mod(syndrome(C(:, flipIdx)) + 1, 2);
+    c(flipPos) = 1 - c(flipPos);
+    
+    % udpate syndrome and upcCounts
+    for i = 1:length(flipPos) % for cFlipIdx = flipPos
+        cFlipIdx = flipPos(i);
+        syndrome(C(:, cFlipIdx)) = 1 - syndrome(C(:, cFlipIdx));
+        for j = 1:length(C(:, cFlipIdx)) % for syndromeFlipIdx = transpose(C(:, cFlipIdx))
+            syndromeFlipIdx = C(j, cFlipIdx);
+            if syndrome(syndromeFlipIdx) == 0
+                % parity check now satisified
+                change = -1;
+            else % syndrome(syndromeFlipIdx) == 1
+                % new unsatisfied parity check
+                change = +1;
+            end
+            upcCounts(R(syndromeFlipIdx, :)) = upcCounts(R(syndromeFlipIdx, :)) + change;
+        end
     end
 end
 end

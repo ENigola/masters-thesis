@@ -8,22 +8,38 @@ function [c] = decodeBackflip(R, C, y, maxIter)
 c = y;
 timeOfDeath = zeros(1, length(c));
 syndrome = mod(sum(c(R), 2), 2);
+upcCounts = sum(syndrome(C));
 for iter = 1:maxIter
     if ~any(syndrome)
         break
     end
     
+    threshold = computeThreshold(max(upcCounts));
+    flipPos = find(upcCounts >= threshold);
+    c(flipPos) = 1 - c(flipPos);
+    
+    % update time of death
+    timeOfDeath(flipPos) = iter + timeToLive(upcCounts(flipPos) - threshold);
+    
     % unflip
     unflipPos = find(timeOfDeath == iter);
     c(unflipPos) = 1 - c(unflipPos);
     
-    upcCounts = sum(syndrome(C));
-    threshold = computeThreshold(max(upcCounts));
-    flipPos = find(upcCounts >= threshold);
-    c(flipPos) = 1 - c(flipPos);
-    for flipIdx = flipPos
-        syndrome(C(:, flipIdx)) = mod(syndrome(C(:, flipIdx)) + 1, 2);
-        timeOfDeath(flipIdx) = iter + timeToLive(upcCounts(flipIdx), threshold);
+    % udpate syndrome and upcCounts
+    for i = 1:length(flipPos) % for cFlipIdx = flipPos
+        cFlipIdx = flipPos(i);
+        syndrome(C(:, cFlipIdx)) = 1 - syndrome(C(:, cFlipIdx));
+        for j = 1:length(C(:, cFlipIdx)) % for syndromeFlipIdx = transpose(C(:, cFlipIdx))
+            syndromeFlipIdx = C(j, cFlipIdx);
+            if syndrome(syndromeFlipIdx) == 0
+                % parity check now satisified
+                change = -1;
+            else % syndrome(syndromeFlipIdx) == 1
+                % new unsatisfied parity check
+                change = +1;
+            end
+            upcCounts(R(syndromeFlipIdx, :)) = upcCounts(R(syndromeFlipIdx, :)) + change;
+        end
     end
 end
 end
@@ -33,7 +49,7 @@ function threshold = computeThreshold(maxUpcCount)
 threshold = maxUpcCount - 2; % simple rule for now
 end
 
-function ttl = timeToLive(upcCount, threshold)
+function ttl = timeToLive(delta)
 % Selects time-to-live for flipped bit
-ttl = (upcCount - threshold + 3) * 5; % arbitrary rule for now
+ttl = (delta + 3) * 5; % arbitrary rule for now
 end
