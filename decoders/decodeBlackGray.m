@@ -11,29 +11,24 @@ d = 32; % decoding param
 
 c = y;
 syndrome = mod(sum(c(R), 2), 2);
+upcCounts = sum(syndrome(C));
 for i = 1:maxIter
     if ~any(syndrome)
         break;
     end
     
-    upcCounts = sum(syndrome(C));
     threshold = computeThreshold(max(upcCounts));
     
     black = find(upcCounts >= threshold);
     gray = find(upcCounts >= threshold - delta);
     gray = setdiff(gray, black);
-    c(black) = 1 - c(black);
-    syndrome = mod(sum(c(R), 2), 2);
+    [c, syndrome, upcCounts] = flipBits(R, C, c, syndrome, upcCounts, black);
     
-    upcCounts = sum(syndrome(C));
     maskFlipPos = find(upcCounts(black) >= d);
-    c(black(maskFlipPos)) = 1 - c(black(maskFlipPos));
-    syndrome = mod(sum(c(R), 2), 2);
+    [c, syndrome, upcCounts] = flipBits(R, C, c, syndrome, upcCounts, black(maskFlipPos)); % TODO: check if logical indexing faster
     
-    upcCounts = sum(syndrome(C));
     maskFlipPos = find(upcCounts(gray) >= d);
-    c(gray(maskFlipPos)) = 1 - c(gray(maskFlipPos));
-    syndrome = mod(sum(c(R), 2), 2);
+    [c, syndrome, upcCounts] = flipBits(R, C, c, syndrome, upcCounts, gray(maskFlipPos));
 end
 
 end

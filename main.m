@@ -4,9 +4,9 @@ addpath('binPolyLib', 'decoders');
 r = 4801; % block width/height
 w = 45; % row and column weight of each block
 
-nCodes = 5;
-nMessagesPerCode = 3;
-insertedErrorCounts = 90:2:120; % t
+nCodes = 10;
+nMessagesPerCode = 10;
+insertedErrorCounts = 80:100;
 maxIter = 100; % per decoding attempt
 
 n = 2 * r;
@@ -15,9 +15,8 @@ n = 2 * r;
 
 decoders = {
     @decodeBitFlip;
-    @decodeBitFlipNew;
-    %@decodeBackflip;
-    %@decodeBlackGray;
+    @decodeBackflip;
+    @decodeBlackGray;
 };    
 
 frameErrors = zeros(length(decoders), length(insertedErrorCounts));
@@ -36,20 +35,25 @@ for i = 1:nCodes
             for m = 1:length(decoders)
                 decoder = decoders{m};
                 decoded = decoder(R, C, codewordWithErrors, maxIter);
-                if any(mod(sum(decoded(R), 2), 2))
-                    % decoding failure
+                if ~isequal(decoded, codeword)
                     frameErrors(m, k) = frameErrors(m, k) + 1;
-                elseif ~isequal(decoded, codeword)
-                    % decoded to incorrect codeword
-                    disp('Decoded to wrong codeword');
-                else
-                    % correctly decoded
-                end 
+                end
+%                 if any(mod(sum(decoded(R), 2), 2))
+%                     % decoding failure
+%                     frameErrors(m, k) = frameErrors(m, k) + 1;
+%                 elseif ~isequal(decoded, codeword)
+%                     % decoded to incorrect codeword
+%                     disp('Decoded to wrong codeword');
+%                 else
+%                     % correctly decoded
+%                 end
             end
         end
     end
 end
 frameErrorRates = frameErrors / (nCodes * nMessagesPerCode);
+
+save('main_FER', 'frameErrorRates');
 
 % Plot results
 figure;
