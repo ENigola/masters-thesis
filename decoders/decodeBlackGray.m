@@ -24,11 +24,11 @@ for i = 1:maxIter
     gray = setdiff(gray, black);
     [c, syndrome, upcCounts] = flipBits(R, C, c, syndrome, upcCounts, black);
     
-    maskFlipPos = find(upcCounts(black) >= d);
-    [c, syndrome, upcCounts] = flipBits(R, C, c, syndrome, upcCounts, black(maskFlipPos)); % TODO: check if logical indexing faster
+    blackFlipMask = upcCounts(black) >= d;    
+    [c, syndrome, upcCounts] = flipBits(R, C, c, syndrome, upcCounts, black(blackFlipMask));
     
-    maskFlipPos = find(upcCounts(gray) >= d);
-    [c, syndrome, upcCounts] = flipBits(R, C, c, syndrome, upcCounts, gray(maskFlipPos));
+    grayFlipMask = upcCounts(gray) >= d;
+    [c, syndrome, upcCounts] = flipBits(R, C, c, syndrome, upcCounts, gray(grayFlipMask));
 end
 
 end
