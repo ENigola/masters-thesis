@@ -122,5 +122,7 @@ CExpected = [
 assert(isequal(RExpected, R));
 assert(isequal(CExpected, C));
 
+% TODO: Test writeMatToCsv
+
 % Testing finished
 disp('Testing finished');

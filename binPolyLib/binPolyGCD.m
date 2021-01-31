@@ -5,13 +5,14 @@ function [gcd, coefA, coefB] = binPolyGCD(a, b)
 % coefA - poly Bezout coefficient of a
 % coefB - poly Bezout coefficient of b
 % coefA * a + coefB * b = gcd
+coder.varsize('q', 'r1', 'r2', 's1', 's2', 't1', 't2', [1 inf], [false true]);
 r1 = a;
 r2 = b;
 s1 = 1;
 s2 = 0;
 t1 = 0;
 t2 = 1;
-while any(r2)
+while any(r2, 2)
     [q, r3] = binPolyDiv(r1, r2);
     s3 = mod(binPolyAdd(binPolyMult(q, s2), s1), 2);
     t3 = mod(binPolyAdd(binPolyMult(q, t2), t1), 2);
@@ -27,4 +28,3 @@ gcd = r1;
 coefA = s1;
 coefB = t1;
 end
-

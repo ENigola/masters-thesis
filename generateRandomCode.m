@@ -6,7 +6,7 @@ function [H, G] = generateRandomCode(r, w)
 % G - generator matrix (r x 2r)
 
 maxTries = 100;
-% create polynomial x^r - 1
+% Create polynomial x^r - 1
 modPoly = zeros(1, r + 1);
 modPoly(1) = 1; 
 modPoly(r + 1) = 1;
@@ -20,12 +20,12 @@ for i = [1 2]
         if tries >= maxTries
             %throw(MException('generateRandomCode:limitReaced', ...
             %    strcat("Could not generate valid row in ", int2str(maxTries), ' tries')));
-            fprintf(strcat('WARNING: Valid row not generated in ', int2str(maxTries), ' tries'));
+            fprintf(['WARNING: Valid row not generated in ' int2str(maxTries) ' tries']);
         end
         rows(i, :) = 0;
         rows(i, randperm(r, w)) = 1;
         [gcd, ~, rowInv] = binPolyGCD(modPoly, rows(i, :));
-        coprimeGenerated = find(gcd, 1, 'last') == 1;
+        coprimeGenerated = isequal(find(gcd, 1, 'last'), 1);
         if coprimeGenerated
             rowInvs(i, 1:length(rowInv)) = rowInv;
         end
