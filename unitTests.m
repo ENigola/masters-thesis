@@ -32,14 +32,14 @@ assert(isequal(binPolyMult([1 1 0 0 1 0 1 1], [1 0 1 1 0 0 1]), [1 1 1 0 0 0 1 1
 
 % Test binPolyDiv
 
-try
-    binPolyDiv([0 1 1], [0 0]);
-    throw(MException('automatedTest:TestDivByZero', 'Division by zero did not fail'));
-catch ME
-    if ~strcmp(ME.identifier, 'binPolyDiv:divByZero')
-        rethrow(ME);
-    end
-end
+% try
+%     binPolyDiv([0 1 1], [0 0]);
+%     throw(MException('automatedTest:TestDivByZero', 'Division by zero did not fail'));
+% catch ME
+%     if ~strcmp(ME.identifier, 'binPolyDiv:divByZero')
+%         rethrow(ME);
+%     end
+% end
 
 a = [0 0 0 1 1 1 1 1 1 1];
 b = [0 0 1 1 1 0 1];

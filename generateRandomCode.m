@@ -18,8 +18,9 @@ for i = [1 2]
     coprimeGenerated = false;
     while ~coprimeGenerated
         if tries >= maxTries
-            throw(MException('generateRandomCode:limitReaced', ...
-                strcat("Could not generate valid row in ", int2str(maxTries), ' tries')));
+            %throw(MException('generateRandomCode:limitReaced', ...
+            %    strcat("Could not generate valid row in ", int2str(maxTries), ' tries')));
+            fprintf(strcat('WARNING: Valid row not generated in ', int2str(maxTries), ' tries'));
         end
         rows(i, :) = 0;
         rows(i, randperm(r, w)) = 1;
