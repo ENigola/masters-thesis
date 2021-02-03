@@ -122,7 +122,14 @@ CExpected = [
 assert(isequal(RExpected, R));
 assert(isequal(CExpected, C));
 
-% TODO: Test writeMatToCsv
+% Test writeMatToCsv
+
+filename = 'writeMatToCsv_test.csv';
+mat = [1, 2, 3; 1.234, 0, 54321; -2.3, 14, 1.234567];
+writeMatToCsv(mat, filename);
+matIn = readmatrix(filename);
+assert(isequal(mat, matIn));
+delete(filename);
 
 % Testing finished
 disp('Testing finished');

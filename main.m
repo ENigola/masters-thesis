@@ -4,18 +4,19 @@ addpath('binPolyLib', 'decoders');
 nMaxCodes = 1000;
 nMessagesPerCode = 200;
 nRequiredFailures = 25;
+nMinTrials = 1000;
 insertedErrorCounts = 80:100;
 
 decoders = {
     @decodeBitFlip;
-    %@decodeBackflip;
-    %@decodeBlackGray;
+    @decodeBackflip;
+    @decodeBlackGray;
 }; 
 
 frameErrorRates = zeros(length(decoders), length(insertedErrorCounts));
 for i = 1:length(decoders)
     frameErrorRates(i, :) = measureDecoderPerformance(decoders{i}, ...
-        nMaxCodes, nMessagesPerCode, nRequiredFailures, insertedErrorCounts);
+        nMaxCodes, nMessagesPerCode, nRequiredFailures, nMinTrials, insertedErrorCounts);
 end
 
 % Plot results

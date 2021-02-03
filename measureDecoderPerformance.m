@@ -1,5 +1,11 @@
-function frameErrorRates = measureDecoderPerformance(decoder, nMaxCodes, nMessagesPerCode, nRequiredFailures, insertedErrorCounts)
+function frameErrorRates = measureDecoderPerformance(decoder, nMaxCodes, nMessagesPerCode, nRequiredFailures, nMinTrials, insertedErrorCounts)
 % Tests the success rate of the decoder decoders
+% decoder - the decoder to test, must have arguments (R, C, y, maxIter)
+% nMaxCodes - max number of codes to test for
+% nMessagesPerCode - number of messages to run tests for per code
+% nRequiredFailures - min number of decoding failures required per error count
+% nMinTrials - min number of trials required per error count
+% insertedErrorCounts - array of error counts to test decoding for
 
 r = 4801; % block width/height
 w = 45; % row and column weight of each block
@@ -32,9 +38,9 @@ for i = 1:nMaxCodes
             trialCounts(errorCountPos) = trialCounts(errorCountPos) + 1;
             if ~isequal(decoded, codeword)
                 frameErrors(errorCountPos) = frameErrors(errorCountPos) + 1;
-                if frameErrors(errorCountPos) >= nRequiredFailures
-                    remainingErrorCountsPos(remainingErrorCountsPos == errorCountPos) = [];
-                end
+            end
+            if (frameErrors(errorCountPos) >= nRequiredFailures) && (trialCounts(errorCountPos) >= nMinTrials)
+                remainingErrorCountsPos(remainingErrorCountsPos == errorCountPos) = [];
             end
         end
         if isempty(remainingErrorCountsPos)

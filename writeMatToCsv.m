@@ -7,7 +7,7 @@ function writeMatToCsv(mat, fileName)
 fileID = fopen(fileName, 'w');
 for i = 1:size(mat, 1)
     for j = 1:size(mat, 2)
-        fprintf(fileID, '%g', mat(i, j));
+        fprintf(fileID, '%.10g', mat(i, j));
         if j ~= size(mat, 2)
             fprintf(fileID, ',');
         end
