@@ -1,4 +1,4 @@
-function [c] = decodeBackflip(R, C, y, maxIter)
+function [c] = decodeBackflip(R, C, y, maxIter, ~)
 % Backflip decoding
 % R, C - non-zero pos of H by row, column
 % y - word to be decoded
@@ -16,7 +16,13 @@ for iter = 1:maxIter
     
     threshold = computeThreshold(max(upcCounts));
     flipPos = find(upcCounts >= threshold);
-    timeOfDeath(flipPos) = iter + timeToLive(upcCounts(flipPos) - threshold);
+    for flipIdx = flipPos
+        if timeOfDeath(flipIdx) >= iter
+            timeOfDeath(flipIdx) = 0;
+        else
+            timeOfDeath(flipIdx) = iter + timeToLive(upcCounts(flipIdx) - threshold);
+        end
+    end
     unflipPos = find(timeOfDeath == iter);
     flipPos = setxor(flipPos, unflipPos);
     

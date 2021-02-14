@@ -38,9 +38,5 @@ q = binPolyMult(rows(1, :), rowInvs(2, :));
 assert(length(q) == r);
 Q = transpose(createCirculant(q));
 G = [eye(r) Q];
-% q = binPolyMult(rowInvs(1, :), rows(2, :));
-% [~, q] = binPolyDiv(q, checkPoly);
-% Q = transpose(createCirculant(q));
-% G = [Q eye(r)];
 end
 

@@ -1,20 +1,27 @@
 clear;
 addpath('binPolyLib', 'decoders');
 
-nMaxCodes = 1000;
-nMessagesPerCode = 200;
-nRequiredFailures = 25;
-nMinTrials = 1000;
-insertedErrorCounts = 80:100;
+nMaxCodes = 10;
+nMessagesPerCode = 100;
+nRequiredFailures = 10;
+nMinTrials = 100;
+insertedErrorCounts = 90:100;
 
 decoders = {
     @decodeBitFlip;
-    @decodeBackflip;
-    @decodeBlackGray;
+    %@decodeBitFlipNew;
+    %@decodeBackflip;
+    %@decodeBackflipNew;
+    %@decodeBlackGray;
+    @decodeBlackGrayFlip;
+    @decodeWeightedBitFlip;
+    @decodeHybrid;
 }; 
 
 frameErrorRates = zeros(length(decoders), length(insertedErrorCounts));
 for i = 1:length(decoders)
+    fprintf('Testing %s\n', func2str(decoders{i}));
+    rng(1);
     frameErrorRates(i, :) = measureDecoderPerformance(decoders{i}, ...
         nMaxCodes, nMessagesPerCode, nRequiredFailures, nMinTrials, insertedErrorCounts);
 end
@@ -28,6 +35,6 @@ set(gca, 'YScale', 'log');
 hold on;
 grid on;
 for i = 1:length(decoders)
-    semilogy(insertedErrorCounts, frameErrorRates(i, :), 'DisplayName', func2str(decoders{i}));
+    plot(insertedErrorCounts, frameErrorRates(i, :), '-o', 'DisplayName', func2str(decoders{i}));
 end
 legend show;

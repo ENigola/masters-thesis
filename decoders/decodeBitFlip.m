@@ -1,4 +1,4 @@
-function [c] = decodeBitFlip(R, C, y, maxIter)
+function [c] = decodeBitFlip(R, C, y, maxIter, ~)
 % Performs basic bit-flipping decoding
 % R, C - non-zero pos of H by row, column
 % y - word to be decoded

@@ -1,4 +1,4 @@
-function [c] = decodeBlackGray(R, C, y, maxIter)
+function [c] = decodeBlackGray(R, C, y, maxIter, ~)
 % Performs Black-Gray bit-flipping decoding
 % R, C - non-zero pos of H by row, column
 % y - word to be decoded

@@ -11,9 +11,7 @@ r = 4801; % block width/height
 w = 45; % row and column weight of each block
 maxIter = 100; % per decoding attempt
 
-n = 2 * r;
-% rngSeed = 1;
-% rng(rngSeed);   
+n = 2 * r;   
 
 frameErrors = zeros(1, length(insertedErrorCounts));
 trialCounts = zeros(1, length(insertedErrorCounts));
@@ -34,7 +32,7 @@ for i = 1:nMaxCodes
             errorPos = randperm(n, errorCount);
             codewordWithErrors = codeword;
             codewordWithErrors(errorPos) = mod(codewordWithErrors(errorPos) + 1, 2);
-            decoded = decoder(R, C, codewordWithErrors, maxIter);
+            decoded = decoder(R, C, codewordWithErrors, maxIter, errorCount);
             trialCounts(errorCountPos) = trialCounts(errorCountPos) + 1;
             if ~isequal(decoded, codeword)
                 frameErrors(errorCountPos) = frameErrors(errorCountPos) + 1;
