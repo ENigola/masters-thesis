@@ -1,4 +1,4 @@
-function [c] = decodeBitFlip(R, C, y, maxIter, ~)
+function [c] = decodeBitFlip(R, C, y, maxIter)
 % Performs basic bit-flipping decoding
 % R, C - non-zero pos of H by row, column
 % y - word to be decoded
@@ -13,13 +13,8 @@ for iter = 1:maxIter
         break
     end
     
-    threshold = computeThreshold(max(upcCounts));
+    threshold = max(upcCounts);
     flipPos = find(upcCounts >= threshold);
     [c, syndrome, upcCounts] = flipBits(R, C, c, syndrome, upcCounts, flipPos);
 end
-end
-
-function threshold = computeThreshold(maxUpcCount)
-% Selects UPC count threshold for flipping
-threshold = maxUpcCount; % simple rule for now
 end

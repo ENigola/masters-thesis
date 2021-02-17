@@ -1,13 +1,10 @@
-function [c] = decodeBlackGray(R, C, y, maxIter, ~)
+function [c] = decodeBlackGray(R, C, y, maxIter, tau, selectThreshold)
 % Performs Black-Gray bit-flipping decoding
-% R, C - non-zero pos of H by row, column
-% y - word to be decoded
-% maxIter - max number of iterations
-% c - decoded codeword if successful
+% tau - decoding param, difference between standard and gray set threshold
+% selectThreshold - threshold selection function, takes syndrome weight as argument
 
-% arbitrary params ATM
-delta = 4; % decoding param
-d = 32; % decoding param
+d = size(C, 1);
+maskThreshold = (d + 1) / 2 + 1;
 
 c = y;
 syndrome = mod(sum(c(R), 2), 2);
@@ -17,23 +14,16 @@ for i = 1:maxIter
         break;
     end
     
-    threshold = computeThreshold(max(upcCounts));
+    threshold = selectThreshold(sum(syndrome));
     
     black = find(upcCounts >= threshold);
-    gray = find(upcCounts >= threshold - delta);
-    gray = setdiff(gray, black);
+    gray = find((upcCounts >= threshold - tau) & (upcCounts < threshold));
     [c, syndrome, upcCounts] = flipBits(R, C, c, syndrome, upcCounts, black);
     
-    blackFlipMask = upcCounts(black) >= d;    
+    blackFlipMask = upcCounts(black) >= maskThreshold;    
     [c, syndrome, upcCounts] = flipBits(R, C, c, syndrome, upcCounts, black(blackFlipMask));
     
-    grayFlipMask = upcCounts(gray) >= d;
+    grayFlipMask = upcCounts(gray) >= maskThreshold;
     [c, syndrome, upcCounts] = flipBits(R, C, c, syndrome, upcCounts, gray(grayFlipMask));
 end
-
-end
-
-function threshold = computeThreshold(maxUpcCount)
-% Selects UPC count threshold for flipping
-threshold = maxUpcCount; % simple rule for now
 end

@@ -1,9 +1,5 @@
-function [c] = decodeBackflip(R, C, y, maxIter, ~)
+function [c] = decodeBackflip(R, C, y, maxIter)
 % Backflip decoding
-% R, C - non-zero pos of H by row, column
-% y - word to be decoded
-% maxIter - max number of iterations
-% c - decoded codeword if successful
 
 c = y;
 timeOfDeath = zeros(1, length(c));

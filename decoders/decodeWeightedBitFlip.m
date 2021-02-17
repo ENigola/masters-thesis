@@ -1,14 +1,9 @@
-function [c] = decodeWeightedBitFlip(R, C, y, maxIter, ~)
+function [c] = decodeWeightedBitFlip(R, C, y, maxIter)
 % Performs simplified Weighted Bit-flipping decoding
-% R, C - non-zero pos of H by row, column
-% y - word to be decoded
-% maxIter - max number of iterations
-% c - decoded codeword if successful
+
+w = size(C, 1);
 
 c = y;
-
-w = size(R, 2) / 2;
-
 syndrome = mod(sum(c(R), 2), 2);
 nucs = sum(syndrome(C));
 for iter = 1:maxIter

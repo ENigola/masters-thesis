@@ -11,6 +11,9 @@ modPoly = zeros(1, r + 1);
 modPoly(1) = 1; 
 modPoly(r + 1) = 1;
 
+wBlock = w / 2;
+assert(rem(wBlock, 2) == 1);
+
 rows = zeros(2, r);
 rowInvs = zeros(2, r);
 for i = [1 2]
@@ -23,7 +26,7 @@ for i = [1 2]
             fprintf(['WARNING: Valid row not generated in ' int2str(maxTries) ' tries']);
         end
         rows(i, :) = 0;
-        rows(i, randperm(r, w)) = 1;
+        rows(i, randperm(r, wBlock)) = 1;
         [gcd, ~, rowInv] = binPolyGCD(modPoly, rows(i, :));
         coprimeGenerated = isequal(find(gcd, 1, 'last'), 1);
         if coprimeGenerated
