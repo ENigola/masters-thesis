@@ -1,5 +1,5 @@
 function DFRs = measureDFRvsT(decoder, settings, r, w, tTrials)
-% TODO
+% Measures DFR over t
 
 n = 2 * r;   
 decodingFailures = zeros(1, length(tTrials));

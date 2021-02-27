@@ -1,5 +1,5 @@
 function DFRs = measureDFRvsR(decoder, settings, rTrials, w, t)
-% TODO
+% Measure DFR over r
 
 decodingFailures = zeros(1, length(rTrials));
 trialCounts = zeros(1, length(rTrials));
@@ -13,10 +13,11 @@ for i = 1:length(rTrials)
     requiredReached = false;
     for dummy = 1:settings.nMaxCodes
         [H, G] = generateRandomCode(r, w);
+        Q = G(:, r+1:2*r);
         [R, C] = indexNonZeroPos(H);
         for dummy2 = 1:settings.nMessagesPerCode
             msg = randi([0 1], 1, r);
-            codeword = mod(msg * G, 2);
+            codeword = [msg, mod(msg * Q, 2)];
             errorPos = randperm(n, t);
             withErrors = codeword;
             withErrors(errorPos) = 1 - withErrors(errorPos);

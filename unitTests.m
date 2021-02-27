@@ -87,7 +87,7 @@ assert(isequal(createCirculant([1 0 1]), [1 0 1; 1 1 0; 0 1 1]));
 % Test generateRandomCode
 
 r = 1001;
-w = 25;
+w = 50;
 for i = 1:10
     [H, G] = generateRandomCode(r, w);    
     prod = H * transpose(G);

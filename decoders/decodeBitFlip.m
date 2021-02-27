@@ -7,14 +7,21 @@ function [c] = decodeBitFlip(R, C, y, maxIter)
 
 c = y;
 syndrome = mod(sum(c(R), 2), 2);
+syndromeWeight = sum(syndrome);
 upcCounts = sum(syndrome(C));
 for iter = 1:maxIter
-    if ~any(syndrome)
+    if syndromeWeight == 0
         break
     end
     
     threshold = max(upcCounts);
     flipPos = find(upcCounts >= threshold);
     [c, syndrome, upcCounts] = flipBits(R, C, c, syndrome, upcCounts, flipPos);
+    syndromeWeightNew = sum(syndrome);
+    if syndromeWeightNew > syndromeWeight
+        break
+    else
+        syndromeWeight = syndromeWeightNew;
+    end
 end
 end
