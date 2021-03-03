@@ -84,19 +84,32 @@ assert(isequal(createCirculant([1 2 3]), [1 2 3; 3 1 2; 2 3 1]));
 assert(isequal(createCirculant([]), []));
 assert(isequal(createCirculant([1 0 1]), [1 0 1; 1 1 0; 0 1 1]));
 
-% Test generateRandomCode
+% Test generateQcMdpcCode
 
 r = 1001;
 w = 50;
 for i = 1:10
-    [H, G] = generateRandomCode(r, w);    
-    prod = H * transpose(G);
-    prod = mod(prod, 2);
+    [H, G] = generateQcMdpcCode(r, w);    
+    prod = mod(H * transpose(G), 2);
     assert(~any(prod, 'all'));
     assert(isequal(size(H), [r 2*r]));
     assert(isequal(size(G), [r 2*r]));
-    assert(length(find(H(randi([1 r]), :))), 2 * w);
-    assert(length(find(H(:, randi([1 2*r])))), w);
+    assert(length(find(H(randi([1 r]), :))) == w);
+    assert(length(find(H(:, randi([1 2*r])))) == w / 2);
+end
+
+% Test generateTbConvMdpcCode
+
+r = 439;
+w = 39;
+m = 2;
+for L = 2:5
+    [H, G] = generateTbConvQcMdpcCode(r, w, m, L);    
+    prod = mod(H * transpose(G), 2);
+    assert(~any(prod, 'all'));
+    assert(isequal(size(H), [L * r, L * m * r]));
+    assert(isequal(size(G), [L * (m - 1) * r, L * m * r]));
+    assert(length(find(H(randi([1 L*r]), :))) == w);
 end
 
 % Test indexNonZeroPos

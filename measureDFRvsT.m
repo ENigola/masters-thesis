@@ -13,7 +13,7 @@ for i = 1:settings.nMaxCodes
     if settings.printProgress
         fprintf('Code %g\n', i);
     end
-    [H, G] = generateRandomCode(r, w);
+    [H, G] = generateQcMdpcCode(r, w);
     [R, C] = indexNonZeroPos(H);
     for dummy = 1:settings.nMessagesPerCode
         msg = randi([0, 1], 1, r);

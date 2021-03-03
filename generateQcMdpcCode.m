@@ -1,7 +1,7 @@
-function [H, G] = generateRandomCode(r, w)
+function [H, G] = generateQcMdpcCode(r, w)
 % Generates random QC-MDPC code with n0 = 2
 % r - width and height of blocks
-% w - row/column weight of each block
+% w - full row weight
 % H - parity check matrix (r x 2r)
 % G - generator matrix (r x 2r)
 

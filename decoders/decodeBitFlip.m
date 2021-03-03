@@ -8,7 +8,7 @@ function [c] = decodeBitFlip(R, C, y, maxIter)
 c = y;
 syndrome = mod(sum(c(R), 2), 2);
 syndromeWeight = sum(syndrome);
-upcCounts = sum(syndrome(C));
+upcCounts = sum(syndrome(C), 1);
 for iter = 1:maxIter
     if syndromeWeight == 0
         break
