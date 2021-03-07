@@ -1,75 +1,69 @@
-function [H, G] = generateTbConvQcMdpcCode(r, w, L)
+function [H, Q] = generateTbConvQcMdpcCode(r, m, L, w)
 % Generates random TB Conv QC-MDPC code
 % r - block width and height
-% w - full row weight
 % m - n/r
 % L - tail-biting level
+% w - full row weight
+% Q - as in G = [I Q]
 
-assert(L > 1);
-m = 2; % doesn't work for other value ATM
-
-cCount = m + 1;
-
-wBlock = w / cCount;
+blockCount = m + 1;
+wBlock = w / blockCount;
 assert(rem(wBlock, 2) == 1);
-
-maxTries = 100;
+maxRowGenTries = 10;
 
 % Create polynomial x^r - 1
 modPoly = zeros(1, r + 1);
 modPoly(1) = 1; 
 modPoly(r + 1) = 1;
 
-rows = zeros(cCount, r);
-for i = 1:cCount
+rows = zeros(blockCount, r);
+rowInvs = zeros(blockCount, r);
+for i = 1:blockCount
     tries = 0;
     coprimeGenerated = false;
     while ~coprimeGenerated
-        if tries >= maxTries
-            throw(MException('generateRandomCode:limitReaced', ...
-                strcat("Could not generate valid row in ", int2str(maxTries), ' tries')));
+        tries = tries + 1;
+        if tries == maxRowGenTries + 1
+            warning('Row generation has taken more than %d tries.', maxRowGenTries);
         end
         rows(i, :) = 0;
         rows(i, randperm(r, wBlock)) = 1;
-        [gcd, ~, ~] = binPolyGCD(modPoly, rows(i, :));
+        [gcd, ~, rowInv] = binPolyGCD(modPoly, rows(i, :));
         coprimeGenerated = isequal(find(gcd, 1, 'last'), 1);
-        tries = tries + 1;
     end
+    rowInvs(i, 1:length(rowInv)) = rowInv;
 end
 
-Cs = zeros(r, r, cCount);
-for i = 1:cCount
+Cs = zeros(r, r, blockCount);
+for i = 1:blockCount
     Cs(:, :, i) = createCirculant(rows(i, :));
 end
 
-% ---
-
-H0 = reshape(Cs(:, :, 1:m), r, m*r);
-H1 = [Cs(:, :, m + 1) zeros(r, (m - 1) * r)];
-
-G0 = zeros((m - 1) * r, m * r);
-for i = 1 : m - 1
-    G0(1+(i-1)*r : i*r, 1+i*r : (i+1)*r) = transpose(Cs(:, :, m + 1));
-end
-
-G1 = zeros((m - 1) * r, m * r);
-for i = 1 : m - 1
-    G1(1+(i-1)*r : i*r, 1+(i-1)*r : i*r) = transpose(Cs(:, :, i + 1));
-    G1(1+(i-1)*r : i*r, 1+i*r : (i+1)*r) = transpose(Cs(:, :, i));
-end
-
-% ---
-
-H = zeros(L * r, L * m * r);
-HRow = [H0 H1 zeros(r, (L - 2) * m * r)];
+% H = [A B]
+% A = L quasi-cyclic shifts of [C1 C2 ... Cm-1 Cm+1 0 ... 0] by (m-1)*r
+% B = L quasi-cyclic shifts of [Cm 0 ... 0] by r
+H = zeros(L*r, L*m*r);
+% HStartRow = [C1 C2 ... Cm-1 Cm+1 0 ... 0]
+HStartRow = [reshape(Cs(:, :, 1:m-1), r, (m-1)*r), Cs(:, :, m+1), zeros(r, (L*m-L-m)*r)]; 
 for i = 1:L
-    H(1+(i-1)*r : i*r, :) = circshift(HRow, [0, (i-1)*m*r]);
+    H(1+(i-1)*r : i*r, 1 : L*(m-1)*r) = circshift(HStartRow, [0, (i-1)*(m-1)*r]);
+    H(1+(i-1)*r : i*r, (L*(m-1)+i-1)*r+1 : (L*(m-1)+i)*r) = Cs(:, :, m);
 end
-
-% TODO: doesn't work for m > 2
-G = zeros(L * (m - 1) * r, L * m * r);
-GRow = [G0 G1 zeros((m - 1) * r, (L - 2) * m * r)];
+   
+% G = [I Q]
+% Q = L quasi-cyclic shifts of column
+%   [Cm^-1 * C1, Cm^-1 * C2, ..., Cm^-1 * Cm-1, Cm^-1 * Cm+1, 0, ..., 0]
+%   by (m-1)*r
+Q = zeros(L*(m-1)*r, L*r);
+QColumn = zeros(L*(m-1)*r, r);
+for i = 1:m-1
+    [~, poly] = binPolyDiv(binPolyMult(rowInvs(m, :), rows(i, :)), modPoly);
+    QColumn(1+(i-1)*r : i*r, :) = transpose(createCirculant(poly));
+end
+[~, poly] = binPolyDiv(binPolyMult(rowInvs(m, :), rows(m+1, :)), modPoly);
+QColumn(1+(m-1)*r : m*r, :) = transpose(createCirculant(poly));
 for i = 1:L
-    G(1+(i-1)*(m-1)*r : i*(m-1)*r, :) = circshift(GRow, [0, (i-1)*m*r]);
+    Q(:, 1+(i-1)*r : i*r) = circshift(QColumn, [(i-1)*(m-1)*r, 0]);
 end
 
+end

@@ -1,8 +1,10 @@
-function [c] = decodeSlidingWindow(H, y, L)
+function [c] = decodeSlidingWindow(H, y, m, L)
 % Sliding window decoding
 % TODO
 
-maxWindowIter = 100;
+% TODO: uses old construction, update to new
+
+maxWindowIter = 150;
 m = 2;
 W = m + 1;
 r = size(H, 1) / L;
