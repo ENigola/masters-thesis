@@ -137,6 +137,28 @@ CExpected = [
 assert(isequal(RExpected, R));
 assert(isequal(CExpected, C));
 
+% Test RC2H
+
+R = [
+    1 2 4 6
+    2 3 4 5
+    1 3 5 6
+    ];
+
+C = [
+    1 1 2 1 2 1
+    3 2 3 2 3 3
+    ];
+
+HExpected = [
+    1 1 0 1 0 1
+    0 1 1 1 1 0
+    1 0 1 0 1 1
+    ];
+
+H = RC2H(R, C);
+assert(isequal(HExpected, H));
+
 % Test writeMatToCsv
 
 filename = 'writeMatToCsv_test.csv';

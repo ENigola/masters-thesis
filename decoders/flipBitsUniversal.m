@@ -1,6 +1,6 @@
-function [c, syndrome, upcCounts] = flipBits(R, C, c, syndrome, upcCounts, flipPos)
+function [c, syndrome, upcCounts] = flipBitsUniversal(H, c, syndrome, upcCounts, flipPos)
 % Flips bits in word and updated syndrome and upcCounts accordingly
-% R, C - non-zero pos of H by row, column
+% H - parity-check matrix
 % c - word in which to flip
 % syndrome - syndrome of c with respect to H
 % upcCounts - unsatisfied parity check counts per bit (of word c)
@@ -8,9 +8,9 @@ function [c, syndrome, upcCounts] = flipBits(R, C, c, syndrome, upcCounts, flipP
 
 c(flipPos) = 1 - c(flipPos);
 for cFlipIdx = flipPos
-    syndrome(C(:, cFlipIdx)) = 1 - syndrome(C(:, cFlipIdx));
-    for j = 1:length(C(:, cFlipIdx)) % for syndromeFlipIdx = transpose(C(:, cFlipIdx))
-        syndromeFlipIdx = C(j, cFlipIdx);
+    syndromeFlipPos = find(H(:, cFlipIdx));
+    syndrome(syndromeFlipPos) = 1 - syndrome(syndromeFlipPos);
+    for syndromeFlipIdx = transpose(syndromeFlipPos)
         if syndrome(syndromeFlipIdx) == 0
             % parity check now satisified
             change = -1;
@@ -18,7 +18,8 @@ for cFlipIdx = flipPos
             % new unsatisfied parity check
             change = +1;
         end
-        upcCounts(R(syndromeFlipIdx, :)) = upcCounts(R(syndromeFlipIdx, :)) + change;
+        upcChangePos = find(H(syndromeFlipIdx, :));
+        upcCounts(upcChangePos) = upcCounts(upcChangePos) + change;
     end
 end
 end
