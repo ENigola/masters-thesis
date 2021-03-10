@@ -1,25 +1,27 @@
 function [c] = decodeSlidingWindow(H, y, m, L)
 % Sliding window decoding
-% TODO
-
-% TODO: uses old construction, update to new
+% H - parity-check matrix of the tail-biting code
+% y - word to be decoded
+% m - n/r, i.e. number of block in the parent QC-MDPC code
+% L - tailbiting level
 
 maxWindowIter = 150;
-m = 2;
-W = m + 1;
 r = size(H, 1) / L;
 
 c = y;
-window = zeros(1, W * r);
+window = zeros(1, (m + 1) * r);
+windowBlocks = zeros(1, m + 1);
 for i = 1:L
-    windowStart = mod(1 + (i - 1) * m, m * L);
-    windowEnd = mod(windowStart + W - 1, m * L);
+    windowMainStart = mod((i-1)*(m-1), L*(m-1)) + 1;
+    windowMainEnd = mod(windowMainStart + m - 1, L*(m-1));
     
-    if windowStart < windowEnd
-        windowBlocks = windowStart:windowEnd;
+    if windowMainStart < windowMainEnd
+        windowBlocks(1:m) = windowMainStart:windowMainEnd;
     else
-        windowBlocks = [1:windowEnd windowStart:m*L];
+        windowBlocks(1:m) = [1:windowMainEnd windowMainStart:L*(m-1)];
     end
+    
+    windowBlocks(m + 1) = L * (m - 1) + i;
     
     for j = 1:length(windowBlocks)
         blockPos = windowBlocks(j);
