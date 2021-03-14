@@ -23,7 +23,7 @@ for i = 1:nCodes
     for j = 1:nMessagesPerCode
         message = randi([0 1], 1, k);
         codeword = [message mod(message * Q, 2)];
-        assert(~any(mod(H * transpose(codeword), 2), 'all'));
+        % assert(~any(mod(H * transpose(codeword), 2), 'all'));
         for tPos = 1:length(tTrials)
             t = tTrials(tPos);
             errorPos = randperm(n, t);
