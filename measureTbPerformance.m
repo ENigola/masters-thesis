@@ -7,11 +7,6 @@ m = 2;
 L = 2;
 tTrials = 160:2:190;
 
-% message length (code dimension) = L * (m - 1) * r
-% ciphertext length (code length) = L * m * r
-% code rate = (m - 1) / m
-% public key length = m * r
-
 n = L * m * r;
 k = L * (m - 1) * r;
 w = (m + 1) * wBlock;
@@ -20,9 +15,11 @@ nCodes = 10;
 nMessagesPerCode = 10;
 
 decodingFailures = zeros(1, length(tTrials));
+% rng(1);
 for i = 1:nCodes
     fprintf('Testing code %d\n', i);
     [H, Q] = generateTbConvQcMdpcCode(r, m, L, w);
+    decoder = slidingWindowDecoder(H, m, L);
     for j = 1:nMessagesPerCode
         message = randi([0 1], 1, k);
         codeword = [message mod(message * Q, 2)];
@@ -32,7 +29,8 @@ for i = 1:nCodes
             errorPos = randperm(n, t);
             withErrors = codeword;
             withErrors(errorPos) = 1 - withErrors(errorPos);
-            decoded = decodeSlidingWindow(H, withErrors, m, L);
+            %decoded = decodeSlidingWindow(H, withErrors, m, L);
+            decoded = decoder.decode(withErrors);
             if ~isequal(codeword, decoded)
                 fprintf('-');
                 decodingFailures(tPos) = decodingFailures(tPos) + 1;

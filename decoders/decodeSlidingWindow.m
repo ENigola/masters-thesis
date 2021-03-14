@@ -32,8 +32,7 @@ for i = 1:L
     [windowR, windowC] = indexNonZeroPos(windowH);
     windowY = c(window);
     
-    windowDecoded = decodeBitFlip(windowR, windowC, windowY, maxWindowIter);
-    c(window) = windowDecoded;
+    c(window) = decodeBitFlip(windowR, windowC, windowY, maxWindowIter);
 end
 
 end
