@@ -9,7 +9,7 @@ maskThreshold = (d + 1) / 2 + 1;
 c = y;
 syndrome = mod(sum(c(R), 2), 2);
 upcCounts = sum(syndrome(C));
-for i = 1:maxIter
+for iter = 1:maxIter
     if ~any(syndrome)
         break;
     end

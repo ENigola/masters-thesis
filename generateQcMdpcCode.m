@@ -1,4 +1,4 @@
-function [H, G] = generateQcMdpcCode(r, w)
+function [H, Q] = generateQcMdpcCode(r, w, n0)
 % Generates random QC-MDPC code with n0 = 2
 % r - width and height of blocks
 % w - full row weight
@@ -11,12 +11,12 @@ modPoly = zeros(1, r + 1);
 modPoly(1) = 1; 
 modPoly(r + 1) = 1;
 
-wBlock = w / 2;
+wBlock = w / n0;
 assert(rem(wBlock, 2) == 1);
 
-rows = zeros(2, r);
-rowInvs = zeros(2, r);
-for i = [1 2]
+rows = zeros(n0, r);
+rowInvs = zeros(n0, r);
+for i = 1:n0
     tries = 0;
     coprimeGenerated = false;
     while ~coprimeGenerated
@@ -35,11 +35,17 @@ for i = [1 2]
         tries = tries + 1;
     end
 end
-H = [createCirculant(rows(1, :)) createCirculant(rows(2, :))];
-q = binPolyMult(rows(1, :), rowInvs(2, :));
-[~, q] = binPolyDiv(q, modPoly);
-assert(length(q) == r);
-Q = transpose(createCirculant(q));
-G = [eye(r) Q];
+
+H = zeros(r, n0*r);
+for i = 1:n0
+    H(:, 1+(i-1)*r : i*r) = createCirculant(rows(i, :));
+end
+
+Q = zeros((n0-1)*r, r);
+for i = 1:n0-1
+    rowQ = binPolyMult(rowInvs(n0, :), rows(i, :));
+    [~, rowQ] = binPolyDiv(rowQ, modPoly);
+    Q(1+(i-1)*r : i*r, :) = transpose(createCirculant(rowQ));
+end
 end
 

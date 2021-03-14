@@ -87,15 +87,18 @@ assert(isequal(createCirculant([1 0 1]), [1 0 1; 1 1 0; 0 1 1]));
 % Test generateQcMdpcCode
 
 r = 313;
-w = 22;
-for i = 1:10
-    [H, Q] = generateQcMdpcCode(r, w);    
-    prod = mod(H * transpose(Q), 2);
-    assert(~any(prod, 'all'));
-    assert(isequal(size(H), [r 2*r]));
-    assert(isequal(size(Q), [r 2*r]));
-    assert(length(find(H(randi([1 r]), :))) == w);
-    assert(length(find(H(:, randi([1 2*r])))) == w / 2);
+for n0 = 2:4
+    w = n0 * 15;
+    for i = 1:10
+        [H, Q] = generateQcMdpcCode(r, w, n0);    
+        G = [eye((n0-1)*r) Q];
+        prod = mod(H * transpose(G), 2);
+        assert(~any(prod, 'all'));
+        assert(isequal(size(H), [r, n0*r]));
+        assert(isequal(size(G), [(n0-1)*r, n0*r]));
+        assert(length(find(H(randi([1 r]), :))) == w);
+        assert(length(find(H(:, randi([1 2*r])))) == w / n0);
+    end
 end
 
 % Test generateTbConvMdpcCode

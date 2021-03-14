@@ -12,8 +12,7 @@ for i = 1:length(rTrials)
     n = 2 * r;
     requiredReached = false;
     for dummy = 1:settings.nMaxCodes
-        [H, G] = generateQcMdpcCode(r, w);
-        Q = G(:, r+1:2*r);
+        [H, Q] = generateQcMdpcCode(r, w, 2);
         [R, C] = indexNonZeroPos(H);
         for dummy2 = 1:settings.nMessagesPerCode
             msg = randi([0 1], 1, r);
@@ -25,11 +24,21 @@ for i = 1:length(rTrials)
             trialCounts(i) = trialCounts(i) + 1;
             if ~isequal(decoded, codeword)
                 decodingFailures(i) = decodingFailures(i) + 1;
+                if settings.printProgress
+                    fprintf('-');
+                end
+            else
+                if settings.printProgress
+                    fprintf('+');
+                end
             end
             if (decodingFailures(i) >= settings.minFailures) && (trialCounts(i) >= settings.minTrials)
                requiredReached = true; 
                break
             end
+        end
+        if settings.printProgress
+            fprintf('\n');
         end
         if requiredReached
             break
