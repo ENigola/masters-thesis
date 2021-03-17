@@ -1,35 +1,47 @@
 clear;
 addpath('binPolyLib', 'decoders');
 
-params1.L = 2;
-params1.m = 2;
-params1.t = 136;
-params1.w = 147;
-params1.rTrials = [4001, 4507, 5003, 5501, 6007];
-params1.name = 'm = 2';
+printFailSucc = false;
 
-params2.L = 2;
-params2.m = 3;
-params2.t = 85;
-params2.w = 92;
-params2.rTrials = [1103, 1301, 1511, 1709, 1901];
-params2.name = 'm = 3';
+secLevel = 80;
 
-params3.L = 2;
-params3.m = 4;
-params3.t = 68;
-params3.w = 75;
-params3.rTrials = [809, 907, 1009, 1103, 1201];
-params3.name = 'm = 4';
+maxR = 4000;
+p1.L = 2;
+p1.m = 2;
+[p1.t, p1.w] = calcMinParams(secLevel, maxR, p1.m, p1.L, true);
+p1.rTrials = 2001:50:3001;
+p1.name = 'L = 2, m = 2';
+
+maxR = 6000;
+p2.L = 1;
+p2.m = 2;
+[p2.t, p2.w] = calcMinParams(secLevel, maxR, p2.m, p2.L, true);
+p2.rTrials = 3601:60:4801;
+p2.name = 'L = 1, m = 2';
+
+maxR = 5000;
+p3.L = 1;
+p3.m = 3;
+[p3.t, p3.w] = calcMinParams(secLevel, maxR, p3.m, p3.L, true);
+p3.rTrials = 2501:50:3501;
+p3.name = 'L = 1, m = 3';
+
+maxR = 4000;
+p4.L = 1;
+p4.m = 4;
+[p4.t, p4.w] = calcMinParams(secLevel, maxR, p4.m, p4.L, true);
+p4.rTrials = 2001:50:3001;
+p4.name = 'L = 1, m = 4';
 
 trialParams = [
-    params1;
-    params2;
-    params3;
+    p1;
+    p2;
+    p3;
+    p4;
 ];    
 
-nCodes = 5;
-nMessagesPerCode = 20;
+nCodes = 10;
+nMessagesPerCode = 50;
 
 decodingFailures = cell(1, length(trialParams));
 for paramsPos = 1:length(trialParams)
@@ -52,13 +64,19 @@ for paramsPos = 1:length(trialParams)
                 withErrors(errorPos) = 1 - withErrors(errorPos);
                 decoded = decoder.decode(withErrors);
                 if ~isequal(codeword, decoded)
-                    fprintf('-');
+                    if printFailSucc
+                        fprintf('-');
+                    end
                     paramsDF(rPos) = paramsDF(rPos) + 1;
                 else
-                    fprintf('+');
+                    if printFailSucc
+                        fprintf('+');
+                    end
                 end
             end
-            fprintf('\n');
+            if printFailSucc
+                fprintf('\n');
+            end
         end
     end
     decodingFailures{paramsPos} = paramsDF;
