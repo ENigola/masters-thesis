@@ -5,41 +5,39 @@ params1.L = 2;
 params1.m = 2;
 params1.t = 136;
 params1.w = 147;
+params1.rTrials = [4001, 4507, 5003, 5501, 6007];
 params1.name = 'm = 2';
 
 params2.L = 2;
 params2.m = 3;
 params2.t = 85;
 params2.w = 92;
+params2.rTrials = [1103, 1301, 1511, 1709, 1901];
 params2.name = 'm = 3';
 
 params3.L = 2;
 params3.m = 4;
 params3.t = 68;
 params3.w = 75;
+params3.rTrials = [809, 907, 1009, 1103, 1201];
 params3.name = 'm = 4';
 
-params4.L = 1;
-
 trialParams = [
-    %params1;
-    %params2;
+    params1;
+    params2;
     params3;
 ];    
-
-% rTrials = [4001, 4507, 5003, 5501, 6007];
-% rTrials = [1103, 1301, 1511, 1709, 1901];
-rTrials = [809, 907, 1009, 1103, 1201];
 
 nCodes = 5;
 nMessagesPerCode = 20;
 
-decodingFailures = zeros(length(trialParams), length(rTrials));
+decodingFailures = cell(1, length(trialParams));
 for paramsPos = 1:length(trialParams)
     params = trialParams(paramsPos);
     fprintf('Testing for params set %s\n', params.name);
-    for rPos = 1:length(rTrials)
-        r = rTrials(rPos);
+    paramsDF = zeros(1, length(params.rTrials));
+    for rPos = 1:length(params.rTrials)
+        r = params.rTrials(rPos);
         fprintf('r = %d\n', r);
         k = params.L * (params.m - 1) * r;        
         n = params.L * params.m * r;
@@ -55,7 +53,7 @@ for paramsPos = 1:length(trialParams)
                 decoded = decoder.decode(withErrors);
                 if ~isequal(codeword, decoded)
                     fprintf('-');
-                    decodingFailures(paramsPos, rPos) = decodingFailures(paramsPos, rPos) + 1;
+                    paramsDF(rPos) = paramsDF(rPos) + 1;
                 else
                     fprintf('+');
                 end
@@ -63,9 +61,8 @@ for paramsPos = 1:length(trialParams)
             fprintf('\n');
         end
     end
+    decodingFailures{paramsPos} = paramsDF;
 end
-
-DFRs = decodingFailures ./ (nCodes * nMessagesPerCode);
 
 figure;
 title('DFR vs r');
@@ -75,7 +72,9 @@ set(gca, 'YScale', 'log');
 hold on;
 grid on;
 for i = 1:length(trialParams)
-    plot(rTrials, DFRs(i, :), '-o', 'DisplayName', trialParams(i).name);
+    params = trialParams(i);
+    DFRs = decodingFailures{i} ./ (nCodes * nMessagesPerCode);
+    plot(params.rTrials, DFRs, '-o', 'DisplayName', params.name);
 end
 legend show;
 

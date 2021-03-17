@@ -2,7 +2,7 @@ function [c] = decodeSlidingWindow(H, y, m, L)
 % Sliding window decoding
 % H - parity-check matrix of the tail-biting code
 % y - word to be decoded
-% m - n/r, i.e. number of block in the parent QC-MDPC code
+% m - number of block in the parent QC-MDPC code (n/(n-k))
 % L - tailbiting level
 
 maxWindowIter = 150;

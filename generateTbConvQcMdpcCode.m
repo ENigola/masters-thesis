@@ -1,8 +1,8 @@
 function [H, Q] = generateTbConvQcMdpcCode(r, m, L, w)
 % Generates random TB Conv QC-MDPC code
-%  equivalent to normal QC-MDPC code generation if L = 1
+%  equivalent to normal QC-MDPC code generation when L = 1
 % r - block width and height
-% m - n/r
+% m - number of blocks in parent QC-MDPC code (n / (n - k))
 % L - tail-biting level
 % w - full row weight
 % Q - as in G = [I Q]
