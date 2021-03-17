@@ -89,7 +89,7 @@ assert(isequal(createCirculant([1 0 1]), [1 0 1; 1 1 0; 0 1 1]));
 r = 313;
 for n0 = 2:4
     w = n0 * 15;
-    for i = 1:10
+    for i = 1:5
         [H, Q] = generateQcMdpcCode(r, w, n0);    
         G = [eye((n0-1)*r) Q];
         prod = mod(H * transpose(G), 2);
@@ -170,6 +170,117 @@ writeMatToCsv(mat, filename);
 matIn = readmatrix(filename);
 assert(isequal(mat, matIn));
 delete(filename);
+
+% Test slidingWindowDecoder
+
+C1 = createCirculant([0 0 1 1 1]);
+C2 = createCirculant([1 0 1 0 1]);
+C3 = createCirculant([1 0 1 1 0]);
+C4 = createCirculant([0 1 0 1 1]);
+O = zeros(5);
+
+%---
+L = 1;
+m = 2;
+H = [C1 C2];
+
+SWD = slidingWindowDecoder(H, m, L);
+
+[R, C] = indexNonZeroPos(H);
+assert(isequal(1:10, SWD.windows));
+assert(isequal(R, SWD.RWindows));
+assert(isequal(C, SWD.CWindows));
+
+%---
+L = 1;
+m = 3;
+H = [C1 C2 C3];
+
+SWD = slidingWindowDecoder(H, m, L);
+
+[R, C] = indexNonZeroPos(H);
+assert(isequal(1:15, SWD.windows));
+assert(isequal(R, SWD.RWindows));
+assert(isequal(C, SWD.CWindows));
+
+%---
+L = 1;
+m = 4;
+H = [C1 C2 C3 C4];
+
+SWD = slidingWindowDecoder(H, m, L);
+
+[R, C] = indexNonZeroPos(H);
+assert(isequal(1:20, SWD.windows));
+assert(isequal(R, SWD.RWindows));
+assert(isequal(C, SWD.CWindows));
+
+%---
+L = 2;
+m = 2;
+H = [C1 C3 C2 O;
+     C3 C1 O C2];
+
+SWD = slidingWindowDecoder(H, m, L);
+
+HWindow = [C1 C3 C2];
+[R, C] = indexNonZeroPos(HWindow);
+assert(isequal(1:15, SWD.windows(1, :)));
+assert(isequal(R, SWD.RWindows(:, :, 1)));
+assert(isequal(C, SWD.CWindows(:, :, 1)));
+
+HWindow = [C3 C1 C2];
+[R, C] = indexNonZeroPos(HWindow);
+assert(isequal([1:10 16:20], SWD.windows(2, :)));
+assert(isequal(R, SWD.RWindows(:, :, 2)));
+assert(isequal(C, SWD.CWindows(:, :, 2)));
+
+%---
+L = 2;
+m = 3;
+H = [C1 C2 C4 O  C3 O;
+     C4 O  C1 C2 O  C3];
+
+SWD = slidingWindowDecoder(H, m, L);
+
+HWindow = [C1 C2 C4 C3];
+[R, C] = indexNonZeroPos(HWindow);
+assert(isequal([1:15 21:25], SWD.windows(1, :)));
+assert(isequal(R, SWD.RWindows(:, :, 1)));
+assert(isequal(C, SWD.CWindows(:, :, 1)));
+
+HWindow = [C4 C1 C2 C3];
+[R, C] = indexNonZeroPos(HWindow);
+assert(isequal([1:5 11:20 26:30], SWD.windows(2, :)));
+assert(isequal(R, SWD.RWindows(:, :, 2)));
+assert(isequal(C, SWD.CWindows(:, :, 2)));
+
+%---
+L = 3;
+m = 2;
+H = [C1 C3 O  C2 O  O;
+     O  C1 C3 O  C2 O;
+     C3 O  C1 O  O  C2];
+
+SWD = slidingWindowDecoder(H, m, L);
+
+HWindow = [C1 C3 C2];
+[R, C] = indexNonZeroPos(HWindow);
+assert(isequal([1:10 16:20], SWD.windows(1, :)));
+assert(isequal(R, SWD.RWindows(:, :, 1)));
+assert(isequal(C, SWD.CWindows(:, :, 1)));
+
+HWindow = [C1 C3 C2];
+[R, C] = indexNonZeroPos(HWindow);
+assert(isequal([6:15 21:25], SWD.windows(2, :)));
+assert(isequal(R, SWD.RWindows(:, :, 2)));
+assert(isequal(C, SWD.CWindows(:, :, 2)));
+
+HWindow = [C3 C1 C2];
+[R, C] = indexNonZeroPos(HWindow);
+assert(isequal([1:5 11:15 26:30], SWD.windows(3, :)));
+assert(isequal(R, SWD.RWindows(:, :, 3)));
+assert(isequal(C, SWD.CWindows(:, :, 3)));
 
 % Testing finished
 disp('Testing finished');
