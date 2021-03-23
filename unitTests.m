@@ -1,5 +1,5 @@
 clear;
-addpath('binPolyLib');
+addpath('binPolyLib', 'decoders');
 
 % Test binPolyEqual
 
@@ -281,6 +281,18 @@ HWindow = [C3 C1 C2];
 assert(isequal([1:5 11:15 26:30], SWD.windows(3, :)));
 assert(isequal(R, SWD.RWindows(:, :, 3)));
 assert(isequal(C, SWD.CWindows(:, :, 3)));
+
+% Test calcMinParams
+
+[t, w] = calcMinParams(80, 4801, 2, 2, false);
+assert(t == 87);
+assert(w == 158);
+[t, w] = calcMinParams(128, 4801, 2, 1, true);
+assert(t == 135);
+assert(w == 142);
+[t, w] = calcMinParams(128, 3501, 3, 3, false);
+assert(t == 85);
+assert(w == 337);
 
 % Testing finished
 disp('Testing finished');

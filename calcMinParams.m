@@ -8,7 +8,11 @@ function [t, w] = calcMinParams(secLevel, r, m, L, blockWeightOdd)
 
 R = (m - 1) / m;
 t = ceil((secLevel + log2(sqrt(L * r))) / log2(1 / (1 - R)));
-w = ceil((secLevel + log2(L * r)) / log2(1 / R));
+if L == 1
+    w = ceil((secLevel + log2(r)) / log2(1 / R));
+else
+    w = ceil((secLevel + log2(r)) / log2(2 - R));
+end
 
 if blockWeightOdd
     if L == 1
