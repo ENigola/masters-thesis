@@ -53,7 +53,7 @@ classdef slidingWindowDecoder < handle
             rowWeight = sum(H(1, :));
             columnWeight = sum(H(1 : obj.r, 1));
             obj.RWindows = zeros(obj.r, rowWeight, obj.L);
-            obj.CWindows = zeros(columnWeight, (obj.windowBlockCount)*obj.r, obj.L);
+            obj.CWindows = zeros(columnWeight, obj.windowBlockCount*obj.r, obj.L);
             for i = 1:obj.L
                 HWindow = H(1+(i-1)*obj.r : i*obj.r, obj.windows(i, :));
                 [obj.RWindows(:, :, i), obj.CWindows(:, :, i)] = indexNonZeroPos(HWindow);
@@ -63,7 +63,7 @@ classdef slidingWindowDecoder < handle
         function c = decode(obj, y)
             maxWindowIter = 150; % TODO
             c = y;
-            for i = 1:obj.L
+            for i = 1:obj.L + 1
                 windowIndex = mod(i - 1, obj.L) + 1;
                 window = obj.windows(windowIndex, :);
                 yWindow = c(window);

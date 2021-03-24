@@ -15,7 +15,6 @@ nCodes = 10;
 nMessagesPerCode = 10;
 
 decodingFailures = zeros(1, length(tTrials));
-% rng(1);
 for i = 1:nCodes
     fprintf('Testing code %d\n', i);
     [H, Q] = generateTbConvQcMdpcCode(r, m, L, w);
@@ -23,13 +22,11 @@ for i = 1:nCodes
     for j = 1:nMessagesPerCode
         message = randi([0 1], 1, k);
         codeword = [message mod(message * Q, 2)];
-        % assert(~any(mod(H * transpose(codeword), 2), 'all'));
         for tPos = 1:length(tTrials)
             t = tTrials(tPos);
             errorPos = randperm(n, t);
             withErrors = codeword;
             withErrors(errorPos) = 1 - withErrors(errorPos);
-            %decoded = decodeSlidingWindow(H, withErrors, m, L);
             decoded = decoder.decode(withErrors);
             if ~isequal(codeword, decoded)
                 fprintf('-');
