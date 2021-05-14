@@ -61,7 +61,7 @@ classdef slidingWindowDecoder < handle
         end
         
         function c = decode(obj, y)
-            maxWindowIter = 150; % TODO
+            maxWindowIter = 300;
             c = y;
             for i = 1:obj.L + 1
                 windowIndex = mod(i - 1, obj.L) + 1;

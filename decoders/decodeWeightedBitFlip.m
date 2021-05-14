@@ -1,17 +1,15 @@
-function [c] = decodeWeightedBitFlip(R, C, y, maxIter)
+function [c] = decodeWeightedBitFlip(R, C, y, maxIter, selectThreshold)
 % Performs simplified Weighted Bit-flipping decoding
 
-w = size(C, 1);
-
+d = size(C, 1);
 c = y;
 syndrome = mod(sum(c(R), 2), 2);
-syndromeWeight = sum(syndrome);
 nucs = sum(syndrome(C));
 for iter = 1:maxIter
-    if syndromeWeight == 0
+    if ~any(syndrome)
         break
     end
-    votes = sum(nucs(R) > w / 2, 2);
+    votes = sum(nucs(R) > d / 2, 2);
     minVotes0 = min(votes(syndrome == 0));    
     minVotes1 = min(votes(syndrome == 1));
     rels = 2 * syndrome - 1;
@@ -20,16 +18,16 @@ for iter = 1:maxIter
     mask = (syndrome == 1) & (votes <= minVotes1 + 3);
     rels(mask) = rels(mask) * 3;
     metric = sum(rels(C), 1);
-    maxMetric = max(metric);
-    candidatePos = find(metric == maxMetric);
-    [~, J] = min(sum(votes(C(:, candidatePos))));
-    [c, syndrome, nucs] = flipBits(R, C, c, syndrome, nucs, candidatePos(J));
-    syndromeWeightNew = sum(syndrome);
-    if syndromeWeightNew > syndromeWeight
-        break
-    else
-        syndromeWeight = syndromeWeightNew;
-    end
+
+    % Original method
+%     maxMetric = max(metric);
+%     candidatePos = find(metric == maxMetric);
+%     [~, J] = min(sum(votes(C(:, candidatePos))));
+%     [c, syndrome, nucs] = flipBits(R, C, c, syndrome, nucs, candidatePos(J));
+    
+    threshold = selectThreshold(max(metric), min(metric), syndrome);
+    flipPos = find(metric >= threshold);
+    [c, syndrome, nucs] = flipBits(R, C, c, syndrome, nucs, flipPos);
 end
 end
 

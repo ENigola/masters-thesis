@@ -1,39 +1,41 @@
 clear;
 addpath('binPolyLib', 'decoders');
 
-measureVsR = true; % r or t
+measureVsR = false; % r or t
 plotLog = true; % log or linear
 
 if measureVsR
     % BIKE Level 1 (BIKE_Spec.2020.05.01.1)
-    % nIter = 5;
-    tau = 3;
-    selectThreshold = @(syndromeWeight) max(ceil(0.0069722 * syndromeWeight + 13.530), 36);
-    maxIter = 100;
-
-    % BIKE Level 1
     w = 142;
     t = 134;
-    rTrials = ...
+    tau = 3;
+    selectThresholdBG = @(syndromeWeight) max(floor(0.0069722 * syndromeWeight + 13.530), 36);
+    
+    maxIter = 200;
+    
+    rTrials = ... 
         [8599, 8681, 8747, 8837, ...
         8933, 9013, 9127, 9203, ...
         9293, 9391, 9461, 9539, ...
         9643, 9739, 9817, 9901, ...
-        10009, 10103, 10181, 10273, 10357];
-    
+        10009, 10103];
+    rTrials = 9001:200:9601;
 else % measure vs t
-    r = 4801;
-    w = 90;
-    tTrials = 90:110;
+    r = 4001;
+    w = 70;
+    tTrials = 60:2:100;
     
-    tau = 4;
-    selectThreshold = @(syndromeWeight) max(ceil(0.0069722 * syndromeWeight + 13.530), 36);
-    maxIter = 100;
+    NbIter = 5;
+    tau = 3;
+    selectThresholdBG = @(syndromeWeight) max(floor(0.0069722 * syndromeWeight + 13.530), 36);
+    maxIter = 150;
 end
 
-settings.printProgress = true;
-settings.nMaxCodes = 2;
-settings.nMessagesPerCode = 2;
+selectThresholdWBF = @(maxMetric, minMetric, syndrome) maxMetric - (maxMetric - minMetric) * (0.55 - sum(syndrome) / length(syndrome));
+
+settings.printProgress = false;
+settings.nMaxCodes = 100;
+settings.nMessagesPerCode = 100;
 settings.minFailures = 100; % per variable value
 settings.minTrials = 1000; % per variable value
 
@@ -45,25 +47,30 @@ decBitFlip.name = 'BitFlip';
 decBackflip.decode = @(R, C, y, t) decodeBackflip(R, C, y, maxIter);
 decBackflip.name = 'Backflip';
 
-decBG.decode = @(R, C, y, t) decodeBlackGray(R, C, y, maxIter, tau, selectThreshold);
+decBG.decode = @(R, C, y, t) decodeBlackGray(R, C, y, maxIter, tau, selectThresholdBG);
 decBG.name = 'BG';
 
-decBGF.decode = @(R, C, y, t) decodeBlackGrayFlip(R, C, y, maxIter, tau, selectThreshold);
+decBGF.decode = @(R, C, y, t) decodeBlackGrayFlip(R, C, y, 5, tau, selectThresholdBG);
 decBGF.name = 'BGF';
 
-decWBF.decode = @(R, C, y, t) decodeWeightedBitFlip(R, C, y, maxIter);
+decWBF.decode = @(R, C, y, t) decodeWeightedBitFlip(R, C, y, 7, selectThresholdWBF);
 decWBF.name = 'WBF';
 
-decHybrid.decode = @(R, C, y, t) decodeHybrid(R, C, y, maxIter, tau, selectThreshold);
+decHybrid.decode = @(R, C, y, t) decodeHybrid(R, C, y, 5, tau, selectThresholdBG, selectThresholdWBF);
 decHybrid.name = 'Hybrid';
+
+decBitFlipUniversal.decode = @(R, C, y, t) decodeBitFlipUniversal(RC2H(R, C), y, maxIter);
+decBitFlipUniversal.name = 'BitFlip universal';
+
 
 decoders = [
     decBitFlip;
-    decBackflip;
-    decBG;
+    %decBackflip;
+    %decBG;
     decBGF;
     decWBF;
-    decHybrid
+    decHybrid;
+    %decBitFlipUniversal;
 ];
 
 if measureVsR
@@ -72,6 +79,7 @@ else
     DFRs = zeros(length(decoders), length(tTrials));
 end
 
+tic
 for i = 1:length(decoders)
     fprintf('Testing %s\n', decoders(i).name); 
     %rng(1);
@@ -81,12 +89,15 @@ for i = 1:length(decoders)
         DFRs(i, :) = measureDFRvsT(decoders(i).decode, settings, r, w, tTrials);
     end
 end
+toc
     
 if measureVsR
     plotDFR(decoders, DFRs, rTrials, plotLog, 'r');
 else
     plotDFR(decoders, DFRs, tTrials, plotLog, 't');
 end
+
+% save DFRs;
 
 % SCRIPT END
 
@@ -105,12 +116,4 @@ function plotDFR(decoders, DFRs, xValues, logScale, xLabel)
     end
     legend show;
 end
-    
-    
-    
-    
-    
-
-
-
 

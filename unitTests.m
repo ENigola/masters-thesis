@@ -291,7 +291,7 @@ assert(w == 158);
 assert(t == 135);
 assert(w == 142);
 [t, w] = calcMinParams(128, 3501, 3, 3, false);
-assert(t == 85);
+assert(t == 151);
 assert(w == 337);
 
 % Testing finished

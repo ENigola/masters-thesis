@@ -1,14 +1,14 @@
 clear;
 addpath('binPolyLib', 'decoders');
 
-r = 4801;
+p = 4801;
 wBlock = 31;
 m = 2;
 L = 2;
 tTrials = 160:2:190;
 
-n = L * m * r;
-k = L * (m - 1) * r;
+n = L * m * p;
+k = L * (m - 1) * p;
 w = (m + 1) * wBlock;
 
 nCodes = 10;
@@ -17,7 +17,7 @@ nMessagesPerCode = 10;
 decodingFailures = zeros(1, length(tTrials));
 for i = 1:nCodes
     fprintf('Testing code %d\n', i);
-    [H, Q] = generateTbConvQcMdpcCode(r, m, L, w);
+    [H, Q] = generateTbConvQcMdpcCode(p, m, L, w);
     decoder = slidingWindowDecoder(H, m, L);
     for j = 1:nMessagesPerCode
         message = randi([0 1], 1, k);
